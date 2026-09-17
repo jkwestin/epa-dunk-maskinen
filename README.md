@@ -1,6 +1,6 @@
 # epa-dunk-maskinen
 
-EPA-dunk-maskinen turns any song into a dunk edit in the browser. Loads mp3, wav, m4a or flac, detects tempo and key, speeds the track up, and locks a synthesized kick and sub bass to the beat. Exports as mp3 or wav. One HTML file, no build step, no upload.
+The EPA-dunk-maskinen turns any song into a dunk edit in the browser. Loads mp3, wav, m4a or flac, detects tempo and key, speeds the track up, and locks a synthesized kick and sub bass to the beat. Exports as mp3 or wav. One HTML file, no build step, no upload.
 
 Everything runs client-side. The audio never leaves the machine it's played on.
 
@@ -12,11 +12,28 @@ Everything runs client-side. The audio never leaves the machine it's played on.
 - Low-shelf bass boost on the song, plus sidechain ducking so the kick punches through
 - Five patterns: four on the floor, double kick, rolling sub, kick only, off
 - Waveform with the beat grid drawn on it, tap tempo, halve/double, and downbeat nudging for tracks the detector reads wrong
+- Optional pitch-preserving speed, via a WSOLA time-stretch, when you want it faster without the chipmunk
+- Four kick characters, from a clean sine to a saturated 808
+- Auto level on the source, plus a manual song level trim against the kick and sub
 - Exports the finished mix as mp3 (192 kbps) or wav
+- Installs as an app and runs offline after the first visit
 
 ## Run it
 
-Open `index.html` in a browser. That's all.
+Open `index.html` in a browser. That's the whole installation.
+
+Served over HTTP(S) it also registers a service worker, so it installs to a home screen and keeps working with no connection. The typeface and the mp3 encoder are cached on first use.
+
+## Files
+
+| File | What it is |
+| --- | --- |
+| `index.html` | The whole app: markup, styles, audio engine |
+| `sw.js` | Service worker, caches the shell and the two external assets |
+| `manifest.webmanifest` | App name, colors and icons for installation |
+| `icon-*.png`, `apple-touch-icon.png` | Launcher icons |
+
+Changing `index.html` means bumping `VERSION` in `sw.js`, otherwise returning visitors keep the cached build.
 
 ## How it works
 
@@ -30,6 +47,10 @@ Open `index.html` in a browser. That's all.
 
 **Timing.** Notes are booked on the Web Audio clock, which is sample-accurate. A 40 ms interval looks 250 ms ahead and schedules whatever falls inside that window. All beat math happens in the original track's timeline and is divided by the speed only at the moment of scheduling, so changing the speed doesn't scramble the grid.
 
+**Pitch preservation.** With it switched on, the buffer is time-stretched once per speed change using WSOLA: 2048-sample Hann frames at a 1024-sample synthesis hop, with each frame's read position chosen by cross-correlating ±192 samples against the previous frame's natural continuation. Playback then runs at rate 1.0, and the sub drops its speed multiplier since the pitch no longer moves.
+
+**Loudness.** At load, block RMS is measured over 400 ms windows for the first three minutes and the 90th percentile is taken as the working level — a percentile rather than a mean, so intros and silence don't drag it down. The gain that brings it to target is applied ahead of everything else, and a manual trim sits after it.
+
 **Export.** The same graph is rebuilt inside an `OfflineAudioContext` and rendered as fast as the CPU allows, then interleaved to 16-bit wav or encoded to mp3 in 1152-sample blocks.
 
 ## Dependencies
@@ -39,7 +60,7 @@ None at build time. Two things load at runtime:
 - [lamejs](https://github.com/zhuker/lamejs) from jsDelivr, fetched only when you export an mp3. It is LGPL-licensed and is not bundled with this repository.
 - Archivo from Google Fonts. Remove the `<link>` tags in the head and the page falls back to Helvetica and Arial, with no other loss.
 
-Delete both and the app still works offline; you just lose mp3 export and the typeface.
+Delete both and the app still works offline from the first load; you just lose mp3 export and the typeface. With them kept, the service worker caches both after the first use, so offline runs lose nothing.
 
 ## Browser support
 
