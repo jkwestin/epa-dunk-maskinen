@@ -1,6 +1,6 @@
 # epa-dunk-maskinen
 
-The EPA-dunk-maskinen turns any song into a dunk edit in the browser. Loads mp3, wav, m4a or flac, detects tempo and key, speeds the track up, and locks a synthesized kick and sub bass to the beat. Exports as mp3 or wav. One HTML file, no build step, no upload.
+EPA-dunk-maskinen turns any song into a dunk edit in the browser. Loads mp3, wav, m4a or flac, detects tempo and key, speeds the track up, and locks a synthesized kick and sub bass to the beat. Exports as mp3 or wav. One HTML file, no build step, no upload.
 
 Everything runs client-side. The audio never leaves the machine it's played on.
 
@@ -71,6 +71,10 @@ MP3 export takes roughly 10 to 40 seconds for a three-minute track. It runs in c
 ## A note on the name
 
 An EPA-traktor is a car converted to be legally drivable at fifteen in Sweden, capped at 30 km/h. Dunk is what comes out of the speakers: sped-up, bass-heavy edits of whatever was on the radio. Maskinen just means "the machine." This makes those.
+
+## Created by
+
+EPA-dunk-maskinen is created by Jonas Westin, Claude and friends.
 
 ## License
 
